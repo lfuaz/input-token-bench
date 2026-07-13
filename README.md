@@ -12,6 +12,8 @@ Tous les coûts viennent du champ `usage.input_tokens` renvoyé par l'API
 (`claude-sonnet-5`), sur un corpus FR de 5 textes (~100 → 3000 mots), extraction
 de 5 champs structurés notée contre une vérité terrain.
 
+### Synthèse — texte vs image dense
+
 | Longueur | Texte (tokens) | Image dense (tokens) | Réduction | Fiabilité |
 |---------:|---------------:|---------------------:|----------:|:---------:|
 | 104 mots  | 417  | 816  | **-96 %** (perd) | 5/5 |
@@ -19,6 +21,33 @@ de 5 champs structurés notée contre une vérité terrain.
 | 606 mots  | 1688 | 816  | +52 % | 5/5 |
 | 1201 mots | 3189 | 1460 | +54 % | 5/5 |
 | 3010 mots | 7763 | 1621 | +79 % | 5/5 |
+
+### Résultats bruts complets (les 3 modes, 15 appels)
+
+| Texte | Mots | Mode | Image (px) | `input_tokens` | Réduction vs texte | Extraction |
+|------:|-----:|------|-----------|--------------:|------------------:|:---:|
+| 1 | 104 | texte | – | 417 | – | 5/5 |
+| 1 | 104 | img dense | 640×162 | 816 | -95.7 % | 5/5 |
+| 1 | 104 | img comfort | 820×372 | 1019 | -144.4 % | 5/5 |
+| 2 | 303 | texte | – | 923 | – | 5/5 |
+| 2 | 303 | img dense | 640×422 | 816 | +11.6 % | 5/5 |
+| 2 | 303 | img comfort | 820×987 | 1229 | -33.2 % | 5/5 |
+| 3 | 606 | texte | – | 1688 | – | 5/5 |
+| 3 | 606 | img dense | 640×812 | 816 | +51.7 % | 5/5 |
+| 3 | 606 | img comfort | 820×1894 | 2189 | -29.7 % | 5/5 |
+| 4 | 1201 | texte | – | 3189 | – | 5/5 |
+| 4 | 1201 | img dense | 640×1576 | 1460 | +54.2 % | 5/5 |
+| 4 | 1201 | img comfort | 820×3643 | 2081 | +34.7 % | 5/5 |
+| 5 | 3010 | texte | – | 7763 | – | 5/5 |
+| 5 | 3010 | img dense | 640×3883 | 1621 | +79.1 % | 5/5 |
+| 5 | 3010 | img comfort | 820×8955¹ | 977 | +87.4 % | **2/5** |
+
+¹ réduite sous la limite API 8000 px avant envoi → lecture dégradée.
+
+### Graphes
+
+![Réduction de tokens vs longueur](study/fig_reduction.png)
+![Coût en tokens vs longueur](study/fig_tokens.png)
 
 - **L'image dense devient rentable à partir de ~300 mots** ; en dessous elle
   coûte plus cher que le texte.
