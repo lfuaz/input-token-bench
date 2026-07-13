@@ -60,7 +60,7 @@
       <div class="row">
         <label>Densité
           <select id="preset">
-            <option value="dense">dense (13px / 1.25)</option>
+            <option value="dense">dense (12px / interligne serré / marge mini)</option>
             <option value="comfortable">comfortable (18px / 1.8)</option>
           </select>
         </label>
@@ -70,12 +70,16 @@
         </div>
       </div>
       <div class="stat">
-        <span><b id="est-text">0</b><label>≈ tokens texte (est.)</label></span>
-        <span><b id="est-img">0</b><label>≈ tokens image (est.)</label></span>
-        <span><b id="est-red">–</b><label>réduction estimée</label></span>
+        <span><b id="est-text">0</b><label>tokens texte (≈ car/4)</label></span>
+        <span><b id="est-img">0</b><label>tokens image (⌈w/28⌉×⌈h/28⌉)</label></span>
       </div>
-      <p class="note">Estimation texte ≈ chars/4 ; estimation image ≈ (px/28)² plafonné.
-      Chiffres réels dans l'étude, jamais calculés à la main.</p>
+      <div id="verdict-wrap" style="margin-top:10px"></div>
+      <button id="dl" disabled style="margin-top:12px;padding:9px 14px;border-radius:8px;
+        border:1px solid var(--line);background:var(--accent);color:#fff;font-weight:600;
+        cursor:pointer">⬇ Télécharger le PNG</button>
+      <p class="note">Texte : estimation ≈ caractères/4 (BPE). Image : formule Claude
+      ⌈largeur/28⌉ × ⌈hauteur/28⌉ patches — <b>indépendante du contenu</b>. Chiffres
+      d'entrée réels mesurés dans <a href="../study/results.md">l'étude</a>.</p>
     </div>
 
     <div class="card">
@@ -111,7 +115,7 @@ const MEASURED = [
   {words:3010,text:7763, dense:1621, comfort:977,  score:"2/5*"},
 ];
 const PRESETS = {
-  dense:       {font:13, lh:1.25, pad:16, width:640},
+  dense:       {font:12, lh:1.15, pad:8,  width:640},
   comfortable: {font:18, lh:1.8,  pad:40, width:820},
 };
 const SAMPLE = `Note de synthèse commerciale à l'attention de notre client Boulangerie Lefevre. La facture a été émise le 2024-03-14 pour un montant total de 1 284,50 €, rattachée au contrat CT-2024-0817. Le règlement devra nous parvenir au plus tard le 2024-04-13.`;
@@ -152,13 +156,29 @@ function render(){
   $("dim").textContent = `${p.width} × ${h} px  •  ${(p.width*h/1e6).toFixed(2)} MP`;
 
   const estText = Math.round(chars/4);
-  const estImg = Math.min(Math.round((p.width/28)*(h/28)), 1600);
+  // Formule Claude : nombre de patches 28x28, indépendante du contenu.
+  const estImg = Math.ceil(p.width/28) * Math.ceil(h/28);
   $("est-text").textContent = estText;
   $("est-img").textContent = estImg;
+
+  const win = estText > 0 && estImg < estText;
   const red = estText ? Math.round((estText-estImg)/estText*100) : 0;
-  $("est-red").innerHTML = estText
-    ? `<span class="pill ${red>0?'win':'lose'}">${red>0?'+':''}${red}%</span>`
-    : "–";
+  $("verdict-wrap").innerHTML = estText
+    ? `<span class="pill ${win?'win':'lose'}" style="font-size:.95rem;padding:6px 14px">`
+      + `${win?'✅ Gagnant':'❌ Perdant'} · ${red>0?'+':''}${red}% de tokens</span>`
+    : "";
+
+  const dl = $("dl");
+  dl.disabled = !win;
+  dl.style.opacity = win ? "1" : ".45";
+  dl.style.cursor = win ? "pointer" : "not-allowed";
+}
+
+function download(){
+  const link = document.createElement("a");
+  link.download = `texte-image-${$("preset").value}.png`;
+  link.href = $("cv").toDataURL("image/png");
+  link.click();
 }
 
 function buildTable(){
@@ -195,6 +215,7 @@ function buildChart(){
 $("src").value = SAMPLE;
 $("src").addEventListener("input", render);
 $("preset").addEventListener("change", render);
+$("dl").addEventListener("click", download);
 render(); buildTable(); buildChart();
 </script>
 </body>
