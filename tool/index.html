@@ -189,7 +189,17 @@ const input=$("input"), canvas=$("canvas"), ctx=canvas.getContext("2d");
 const fontSizeEl=$("fontSize"), lineHeightEl=$("lineHeight"), canvasWidthEl=$("canvasWidth"),
       paddingEl=$("padding"), fontFamilyEl=$("fontFamily");
 
-const SAMPLE=`Note de synthèse commerciale à l'attention de notre client Boulangerie Lefevre. La facture a été émise le 2024-03-14 pour un montant total de 1 284,50 €, rattachée au contrat CT-2024-0817. Le règlement devra nous parvenir au plus tard le 2024-04-13.`;
+const SAMPLE=`Note de synthèse commerciale à l'attention de notre client Boulangerie Lefevre, établie dans le cadre du suivi contractuel annuel et destinée à récapituler l'ensemble des éléments financiers, logistiques et opérationnels du dossier en cours.
+
+La facture principale a été émise le 2024-03-14 pour un montant total de 1 284,50 € toutes taxes comprises, rattachée au contrat de référence CT-2024-0817 signé par les deux parties. Le règlement devra nous parvenir au plus tard le 2024-04-13, date d'échéance ferme au-delà de laquelle des pénalités de retard calculées au taux légal en vigueur pourront s'appliquer sans mise en demeure préalable.
+
+Les prestations couvertes par ce contrat comprennent la fourniture des matières premières, la maintenance préventive des équipements installés, ainsi qu'un accompagnement technique assuré par un référent dédié joignable durant les heures ouvrées. Un point d'avancement mensuel est organisé afin de suivre le déroulement des livraisons et d'anticiper les éventuels ajustements de périmètre, qui devront systématiquement faire l'objet d'une validation écrite avant toute mise en œuvre.
+
+Concernant les volumes traités sur le dernier trimestre, les équipes logistiques confirment une progression régulière et la disponibilité des ressources nécessaires pour honorer les commandes à venir. Les conditions générales de vente restent applicables à l'ensemble des prestations, et toute réclamation devra être adressée par écrit dans un délai de trente jours suivant la réception de la marchandise.
+
+Nous vous remercions de la confiance renouvelée que vous accordez à nos services et restons à votre entière disposition pour toute précision complémentaire concernant la facturation, le calendrier prévisionnel ou les modalités de règlement décrites dans le présent document.
+
+Plus le texte est long, plus la conversion en image devient rentable en tokens : c'est précisément ce que ce comparateur permet de vérifier en direct.`;
 
 const MEASURED=[
   {words:104, text:417,  dense:816,  comfort:1019, score:"5/5"},
