@@ -60,9 +60,12 @@
       <div class="row">
         <label>Densité
           <select id="preset">
-            <option value="dense">dense (12px / interligne serré / marge mini)</option>
-            <option value="comfortable">comfortable (18px / 1.8)</option>
+            <option value="dense">dense (interligne serré / marge mini)</option>
+            <option value="comfortable">comfortable (interligne large)</option>
           </select>
+        </label>
+        <label>Police <b id="font-val">12</b>px
+          <br><input type="range" id="font" min="6" max="24" value="12" step="1" style="width:160px">
         </label>
         <div class="stat">
           <span><b id="words">0</b><label>mots</label></span>
@@ -118,6 +121,7 @@ const PRESETS = {
   dense:       {font:12, lh:1.15, pad:8,  width:640},
   comfortable: {font:18, lh:1.8,  pad:40, width:820},
 };
+// Police pilotée par le slider ; le preset fixe interligne/marge/largeur.
 const SAMPLE = `Note de synthèse commerciale à l'attention de notre client Boulangerie Lefevre. La facture a été émise le 2024-03-14 pour un montant total de 1 284,50 €, rattachée au contrat CT-2024-0817. Le règlement devra nous parvenir au plus tard le 2024-04-13.`;
 
 const $ = id => document.getElementById(id);
@@ -136,9 +140,12 @@ function wrapText(ctx, text, maxW){
 
 function render(){
   const text = $("src").value;
-  const p = PRESETS[$("preset").value];
+  const base = PRESETS[$("preset").value];
+  const font = +$("font").value;
+  $("font-val").textContent = font;
+  const p = {font, lh: base.lh, pad: base.pad, width: base.width};
   const cv = $("cv"), ctx = cv.getContext("2d");
-  const dpr = 1, maxW = p.width - 2*p.pad;
+  const maxW = p.width - 2*p.pad;
   ctx.font = `${p.font}px sans-serif`;
   const lines = wrapText(ctx, text || " ", maxW);
   const lineH = p.font * p.lh;
@@ -214,7 +221,11 @@ function buildChart(){
 
 $("src").value = SAMPLE;
 $("src").addEventListener("input", render);
-$("preset").addEventListener("change", render);
+$("preset").addEventListener("change", () => {
+  $("font").value = PRESETS[$("preset").value].font;  // reset police au défaut du preset
+  render();
+});
+$("font").addEventListener("input", render);
 $("dl").addEventListener("click", download);
 render(); buildTable(); buildChart();
 </script>
