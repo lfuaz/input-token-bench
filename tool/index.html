@@ -259,7 +259,7 @@ $("presetComfort").addEventListener("click",()=>{
   syncLabels(); render();});
 $("downloadBtn").addEventListener("click",()=>{
   canvas.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement("a");
-    a.href=u; a.download="texte-image.png"; a.click(); URL.revokeObjectURL(u);},"image/png");});
+    a.href=u; a.download="instruction-prompt.png"; a.click(); URL.revokeObjectURL(u);},"image/png");});
 
 function buildTable(){
   let h="<tr><th>Mots</th><th>Texte</th><th>Img dense</th><th>Img comfort</th>"
