@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Texte vs Image — comparateur de tokens en entrée</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --line:#262b36; --fg:#e8ebf0; --muted:#98a2b3;
+    --accent:#5b8cff; --dense:#1f9d8b; --comfort:#ff8a3d; --text:#4caf50;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f7f9; --panel:#ffffff; --line:#e4e7ec; --fg:#1a1d24; --muted:#5b6472; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+       background:var(--bg);color:var(--fg);line-height:1.5}
+  header{padding:28px 20px 14px;max-width:1080px;margin:0 auto}
+  h1{margin:0 0 6px;font-size:1.5rem}
+  .sub{color:var(--muted);font-size:.95rem;max-width:640px}
+  main{max-width:1080px;margin:0 auto;padding:12px 20px 60px}
+  .grid{display:grid;gap:18px;grid-template-columns:1fr}
+  @media(min-width:820px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  textarea{width:100%;min-height:150px;resize:vertical;background:var(--bg);color:var(--fg);
+    border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.9rem;font-family:inherit}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  label{font-size:.85rem;color:var(--muted)}
+  select{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+  .stat{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px}
+  .stat b{font-size:1.3rem;display:block}
+  .canvas-wrap{overflow:auto;max-height:360px;border:1px solid var(--line);border-radius:8px;background:#fff}
+  canvas{display:block}
+  h2{font-size:1.05rem;margin:26px 0 10px}
+  table{border-collapse:collapse;width:100%;font-size:.85rem;overflow-x:auto;display:block}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  .bar{height:10px;border-radius:5px;background:var(--accent)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.75rem}
+  .win{background:rgba(76,175,80,.18);color:#4caf50}
+  .lose{background:rgba(255,99,71,.18);color:#ff6347}
+  a{color:var(--accent)}
+  .note{color:var(--muted);font-size:.8rem;margin-top:6px}
+  footer{max-width:1080px;margin:0 auto;padding:20px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Texte vs Image — comparateur de tokens en entrée</h1>
+  <p class="sub">Colle un texte, choisis une densité de rendu, et compare visuellement
+  les deux formes envoyées au modèle. Les chiffres <b>mesurés</b> (appels API réels)
+  proviennent de l'étude ; l'estimation live ci-dessous est indicative.</p>
+</header>
+
+<main>
+  <div class="grid">
+    <div class="card">
+      <label for="src">Texte source</label>
+      <textarea id="src" spellcheck="false"></textarea>
+      <div class="row">
+        <label>Densité
+          <select id="preset">
+            <option value="dense">dense (13px / 1.25)</option>
+            <option value="comfortable">comfortable (18px / 1.8)</option>
+          </select>
+        </label>
+        <div class="stat">
+          <span><b id="words">0</b><label>mots</label></span>
+          <span><b id="chars">0</b><label>caractères</label></span>
+        </div>
+      </div>
+      <div class="stat">
+        <span><b id="est-text">0</b><label>≈ tokens texte (est.)</label></span>
+        <span><b id="est-img">0</b><label>≈ tokens image (est.)</label></span>
+        <span><b id="est-red">–</b><label>réduction estimée</label></span>
+      </div>
+      <p class="note">Estimation texte ≈ chars/4 ; estimation image ≈ (px/28)² plafonné.
+      Chiffres réels dans l'étude, jamais calculés à la main.</p>
+    </div>
+
+    <div class="card">
+      <label>Rendu image (ce qui serait envoyé)</label>
+      <div class="canvas-wrap"><canvas id="cv" width="640" height="200"></canvas></div>
+      <p class="note" id="dim">–</p>
+    </div>
+  </div>
+
+  <h2>Résultats mesurés (API réelle — <code>usage.input_tokens</code>)</h2>
+  <p class="note">Modèle <code>claude-sonnet-5</code>, corpus FR de 5 textes. Voir
+  <a href="../study/results.md">l'étude complète</a>.</p>
+  <table id="measured"></table>
+  <p class="note">* Texte 5 en <code>comfortable</code> : image réduite pour respecter la
+  limite API 8000 px → lecture dégradée (2/5). Le plus gros gain de coût est aussi
+  le seul échec de fiabilité.</p>
+
+  <h2>Coût mesuré par longueur</h2>
+  <div id="barchart" class="card"></div>
+</main>
+
+<footer>
+  Démo front-end (aucun backend). Extraction de 5 champs structurés comparée à une
+  vérité terrain. Étude & code : voir le dépôt.
+</footer>
+
+<script>
+const MEASURED = [
+  {words:104, text:417,  dense:816,  comfort:1019, score:"5/5"},
+  {words:303, text:923,  dense:816,  comfort:1229, score:"5/5"},
+  {words:606, text:1688, dense:816,  comfort:2189, score:"5/5"},
+  {words:1201,text:3189, dense:1460, comfort:2081, score:"5/5"},
+  {words:3010,text:7763, dense:1621, comfort:977,  score:"2/5*"},
+];
+const PRESETS = {
+  dense:       {font:13, lh:1.25, pad:16, width:640},
+  comfortable: {font:18, lh:1.8,  pad:40, width:820},
+};
+const SAMPLE = `Note de synthèse commerciale à l'attention de notre client Boulangerie Lefevre. La facture a été émise le 2024-03-14 pour un montant total de 1 284,50 €, rattachée au contrat CT-2024-0817. Le règlement devra nous parvenir au plus tard le 2024-04-13.`;
+
+const $ = id => document.getElementById(id);
+
+function wrapText(ctx, text, maxW){
+  const words = text.split(/\s+/);
+  const lines = []; let line = "";
+  for(const w of words){
+    const t = line ? line+" "+w : w;
+    if(ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; }
+    else line = t;
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+
+function render(){
+  const text = $("src").value;
+  const p = PRESETS[$("preset").value];
+  const cv = $("cv"), ctx = cv.getContext("2d");
+  const dpr = 1, maxW = p.width - 2*p.pad;
+  ctx.font = `${p.font}px sans-serif`;
+  const lines = wrapText(ctx, text || " ", maxW);
+  const lineH = p.font * p.lh;
+  const h = Math.max(120, Math.ceil(2*p.pad + lines.length*lineH));
+  cv.width = p.width; cv.height = h;
+  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,cv.width,h);
+  ctx.fillStyle = "#111"; ctx.textBaseline = "top";
+  ctx.font = `${p.font}px sans-serif`;
+  lines.forEach((l,i)=> ctx.fillText(l, p.pad, p.pad + i*lineH));
+
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  $("words").textContent = words;
+  $("chars").textContent = chars;
+  $("dim").textContent = `${p.width} × ${h} px  •  ${(p.width*h/1e6).toFixed(2)} MP`;
+
+  const estText = Math.round(chars/4);
+  const estImg = Math.min(Math.round((p.width/28)*(h/28)), 1600);
+  $("est-text").textContent = estText;
+  $("est-img").textContent = estImg;
+  const red = estText ? Math.round((estText-estImg)/estText*100) : 0;
+  $("est-red").innerHTML = estText
+    ? `<span class="pill ${red>0?'win':'lose'}">${red>0?'+':''}${red}%</span>`
+    : "–";
+}
+
+function buildTable(){
+  const t = $("measured");
+  let html = "<tr><th>Mots</th><th>Texte</th><th>Img dense</th><th>Img comfort</th>"
+    + "<th>Réduction (dense)</th><th>Extraction</th></tr>";
+  for(const r of MEASURED){
+    const red = Math.round((r.text-r.dense)/r.text*100);
+    html += `<tr><td>${r.words}</td><td>${r.text}</td><td>${r.dense}</td>`
+      + `<td>${r.comfort}</td>`
+      + `<td><span class="pill ${red>0?'win':'lose'}">${red>0?'+':''}${red}%</span></td>`
+      + `<td>${r.score}</td></tr>`;
+  }
+  t.innerHTML = html;
+}
+
+function buildChart(){
+  const c = $("barchart");
+  const max = Math.max(...MEASURED.map(r=>r.text));
+  let html = "";
+  for(const r of MEASURED){
+    for(const [k,label,col] of [["text","texte","var(--text)"],["dense","img dense","var(--dense)"],["comfort","img comfort","var(--comfort)"]]){
+      const w = (r[k]/max*100).toFixed(1);
+      html += `<div style="display:flex;align-items:center;gap:8px;margin:2px 0;font-size:.75rem">`
+        + `<span style="width:120px;color:var(--muted)">${r.words} mots · ${label}</span>`
+        + `<span class="bar" style="width:${w}%;background:${col}"></span>`
+        + `<span>${r[k]}</span></div>`;
+    }
+    html += `<div style="height:8px"></div>`;
+  }
+  c.innerHTML = html;
+}
+
+$("src").value = SAMPLE;
+$("src").addEventListener("input", render);
+$("preset").addEventListener("change", render);
+render(); buildTable(); buildChart();
+</script>
+</body>
+</html>

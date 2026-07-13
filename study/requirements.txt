@@ -1,0 +1,4 @@
+anthropic==0.116.0
+matplotlib==3.11.0
+pillow==12.3.0
+playwright==1.61.0

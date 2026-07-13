@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1,
+    "file": "text_1.txt",
+    "word_count": 104,
+    "char_count": 702,
+    "truth": {
+      "nom_client": "Boulangerie Lefevre",
+      "date_facture": "2024-03-14",
+      "montant_total": "1 284,50 €",
+      "reference_contrat": "CT-2024-0817",
+      "date_echeance": "2024-04-13"
+    }
+  },
+  {
+    "id": 2,
+    "file": "text_2.txt",
+    "word_count": 303,
+    "char_count": 2118,
+    "truth": {
+      "nom_client": "Garage Moreau & Fils",
+      "date_facture": "2023-11-02",
+      "montant_total": "7 940,00 €",
+      "reference_contrat": "CT-2023-1149",
+      "date_echeance": "2023-12-02"
+    }
+  },
+  {
+    "id": 3,
+    "file": "text_3.txt",
+    "word_count": 606,
+    "char_count": 4276,
+    "truth": {
+      "nom_client": "Cabinet d'architecture Rey",
+      "date_facture": "2024-06-27",
+      "montant_total": "23 615,80 €",
+      "reference_contrat": "CT-2024-0342",
+      "date_echeance": "2024-08-11"
+    }
+  },
+  {
+    "id": 4,
+    "file": "text_4.txt",
+    "word_count": 1201,
+    "char_count": 8477,
+    "truth": {
+      "nom_client": "Pharmacie du Vieux Port",
+      "date_facture": "2025-01-09",
+      "montant_total": "512,30 €",
+      "reference_contrat": "CT-2025-0006",
+      "date_echeance": "2025-02-08"
+    }
+  },
+  {
+    "id": 5,
+    "file": "text_5.txt",
+    "word_count": 3010,
+    "char_count": 21300,
+    "truth": {
+      "nom_client": "Transports Baptiste Girard",
+      "date_facture": "2024-09-30",
+      "montant_total": "148 200,00 €",
+      "reference_contrat": "CT-2024-1802",
+      "date_echeance": "2024-11-14"
+    }
+  }
+]
