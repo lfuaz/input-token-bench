@@ -60,9 +60,9 @@ de 5 champs structurés notée contre une vérité terrain.
 
 ## Démo live
 
-**[▶ Ouvrir le comparateur](tool/index.html)** *(100 % front-end, aucun backend)* —
-colle un texte, choisis la densité, compare le rendu image et les tokens.
-Une fois GitHub Pages activé : `https://<user>.github.io/<repo>/tool/`.
+**[▶ Ouvrir le comparateur (démo live)](https://lfuaz.github.io/input-token-bench/tool/)**
+*(100 % front-end, aucun backend)* — colle un texte, choisis la densité, compare
+le rendu image et les tokens.
 
 ![Aperçu de l'outil](tool/screenshot.png)
 
