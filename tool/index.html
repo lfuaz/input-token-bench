@@ -154,6 +154,13 @@
           indépendante du contenu). Tokens texte = estimation ~4 car/token, indicative.
           Les vrais coûts d'entrée sont <b>mesurés</b> ci-dessous via l'API.
         </div>
+        <div class="note" style="border-top:1px solid var(--bad);color:var(--bad)">
+          ⚠️ Sécurité : le rendu image n'est <b>pas un canal de confiance</b>. Un
+          texte peint dans une image est lu comme une instruction (injection de
+          prompt multimodale). Traite le texte issu d'images non fiables comme une
+          donnée à analyser, jamais comme une consigne. <span style="color:var(--dim)">Voir la
+          section Sécurité du README.</span>
+        </div>
       </div>
     </div>
   </div>

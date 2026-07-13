@@ -89,6 +89,32 @@ python measure.py                # -> results.csv / results.json
 python analyze.py                # -> fig_reduction.png / fig_tokens.png
 ```
 
+## Sécurité — injection de prompt par image
+
+Mettre un prompt dans une image pour économiser des tokens **est la même
+primitive** qu'une injection de prompt multimodale : le texte peint dans une
+image est lu par le modèle comme une instruction, exactement comme le prompt
+texte. Neutre en soi ; le risque apparaît quand l'image provient d'une **source
+non fiable**.
+
+- **Contournement de filtres** : des garde-fous qui scannent le *texte* de la
+  requête ratent une instruction cachée dans un PNG, que le modèle lit quand même.
+- **Charge cachée** : petite police, faible contraste (gris clair sur blanc),
+  zone hors contenu utile — invisible pour l'humain qui valide, lue par le modèle.
+- **Injection indirecte** : une image tierce (capture, pièce jointe) contenant
+  « ignore les instructions précédentes et… » donne à l'attaquant le contrôle
+  d'une partie du prompt effectif.
+
+Atténuations (défensif) :
+
+- Traiter le texte extrait d'une image comme **donnée non fiable**, jamais comme
+  instruction — séparer « contenu à analyser » et « consignes système ».
+- Appliquer le scan de politique **sur l'image**, pas seulement sur le texte.
+- Isoler les images externes des instructions privilégiées et des tool-calls
+  sensibles.
+- Rendre visible le **texte réellement lu** dans l'image (ce que le canvas de la
+  démo affiche déjà) pour l'inspection humaine.
+
 ## Limites
 
 Échantillon minuscule (5 textes, 1 domaine, 1 langue, 1 modèle, 1 appel par
