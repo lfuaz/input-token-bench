@@ -148,11 +148,14 @@
           <div class="detail-item"><span>Caractères</span><span id="charCount">0</span></div>
           <div class="detail-item"><span>Dimensions image</span><span id="dims">0 × 0 px</span></div>
           <div class="detail-item"><span>Lignes rendues</span><span id="lineCount">0</span></div>
+          <div class="detail-item"><span>Coût input — texte</span><span id="costText">$0</span></div>
+          <div class="detail-item"><span>Coût input — image</span><span id="costImg">$0</span></div>
         </div>
         <div class="note">
           Tokens image = ⌈largeur/28⌉ × ⌈hauteur/28⌉ (formule Claude, patches 28×28px,
           indépendante du contenu). Tokens texte = estimation ~4 car/token, indicative.
-          Les vrais coûts d'entrée sont <b>mesurés</b> ci-dessous via l'API.
+          Coût = input_tokens × <b>$2.00 / 1M</b> (claude-sonnet-5, tarif intro jusqu'au
+          2026-08-31 ; $3.00 hors promo). Les vrais coûts sont <b>mesurés</b> ci-dessous via l'API.
         </div>
         <div class="note" style="border-top:1px solid var(--bad);color:var(--bad)">
           ⚠️ Sécurité : le rendu image n'est <b>pas un canal de confiance</b>. Un
@@ -246,6 +249,9 @@ function updateStats(text,width,height,lineCount){
   $("wordCount").textContent=words; $("charCount").textContent=chars;
   $("dims").textContent=`${width} × ${height} px`; $("lineCount").textContent=lineCount;
   $("textNum").textContent=textTokens; $("imageNum").textContent=imageTokens;
+  const PRICE=2.00/1e6; // $/token, claude-sonnet-5 input (intro rate)
+  const fmt=t=>"$"+(t*PRICE).toFixed(6);
+  $("costText").textContent=fmt(textTokens); $("costImg").textContent=fmt(imageTokens);
   const mx=Math.max(textTokens,imageTokens,1);
   $("textBar").style.width=(textTokens/mx*100)+"%";
   $("imageBar").style.width=(imageTokens/mx*100)+"%";
