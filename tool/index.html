@@ -6,228 +6,288 @@
 <title>Texte vs Image — comparateur de tokens en entrée</title>
 <style>
   :root{
-    --bg:#0f1115; --panel:#171a21; --line:#262b36; --fg:#e8ebf0; --muted:#98a2b3;
-    --accent:#5b8cff; --dense:#1f9d8b; --comfort:#ff8a3d; --text:#4caf50;
-  }
-  @media (prefers-color-scheme: light){
-    :root{ --bg:#f6f7f9; --panel:#ffffff; --line:#e4e7ec; --fg:#1a1d24; --muted:#5b6472; }
+    --bg:#0B0E14; --panel:#12161F; --panel-2:#161B27; --border:#232838;
+    --text:#E8E6E1; --dim:#8A93A6; --accent:#4FD1C5; --good:#7FD858; --bad:#F2545B;
+    --mono: ui-monospace,"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+    --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-       background:var(--bg);color:var(--fg);line-height:1.5}
-  header{padding:28px 20px 14px;max-width:1080px;margin:0 auto}
-  h1{margin:0 0 6px;font-size:1.5rem}
-  .sub{color:var(--muted);font-size:.95rem;max-width:640px}
-  main{max-width:1080px;margin:0 auto;padding:12px 20px 60px}
-  .grid{display:grid;gap:18px;grid-template-columns:1fr}
-  @media(min-width:820px){.grid{grid-template-columns:1fr 1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-  textarea{width:100%;min-height:150px;resize:vertical;background:var(--bg);color:var(--fg);
-    border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.9rem;font-family:inherit}
-  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:10px}
-  label{font-size:.85rem;color:var(--muted)}
-  select{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
-  .stat{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px}
-  .stat b{font-size:1.3rem;display:block}
-  .canvas-wrap{overflow:auto;max-height:360px;border:1px solid var(--line);border-radius:8px;background:#fff}
-  canvas{display:block}
-  h2{font-size:1.05rem;margin:26px 0 10px}
-  table{border-collapse:collapse;width:100%;font-size:.85rem;overflow-x:auto;display:block}
-  th,td{border:1px solid var(--line);padding:6px 8px;text-align:right;white-space:nowrap}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);padding:32px;min-height:100vh}
+  .wrap{max-width:1180px;margin:0 auto}
+  header{margin-bottom:28px}
+  h1{font-size:20px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+  .subtitle{color:var(--dim);font-size:13.5px;line-height:1.5;max-width:660px}
+  .subtitle a{color:var(--accent)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}body{padding:18px}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:0 0 14px;font-weight:600}
+  textarea{width:100%;min-height:160px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;
+    color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.5;padding:12px;resize:vertical}
+  textarea:focus{outline:1px solid var(--accent)}
+  .controls{margin-top:16px;display:flex;flex-direction:column;gap:14px}
+  .ctrl-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .ctrl-label{font-size:12.5px;color:var(--dim);white-space:nowrap}
+  .ctrl-val{font-family:var(--mono);font-size:12px;color:var(--accent);min-width:52px;text-align:right}
+  input[type=range]{flex:1;accent-color:var(--accent)}
+  select{background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-size:12.5px;padding:5px 8px;border-radius:6px}
+  .presets{display:flex;gap:8px;margin-top:14px}
+  button{font-family:var(--sans);font-size:12.5px;padding:7px 12px;border-radius:6px;border:1px solid var(--border);
+    background:var(--panel-2);color:var(--text);cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  .btn-primary{background:var(--accent);color:#04211E;border:none;font-weight:600}
+  .btn-primary:hover{opacity:.9}
+  .canvas-wrap{border:1px solid var(--border);border-radius:8px;overflow:auto;max-height:340px;background:#1a1a1a;
+    display:flex;justify-content:center;padding:8px}
+  canvas{max-width:100%;height:auto;border-radius:6px;display:block;background:#fff}
+  .actions{display:flex;gap:8px;margin-top:16px}
+  .stats-card{margin-top:20px}
+  .verdict{display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px;border-radius:8px;margin-bottom:16px}
+  .verdict.good{background:rgba(127,216,88,.12);border:1px solid rgba(127,216,88,.35)}
+  .verdict.bad{background:rgba(242,84,91,.12);border:1px solid rgba(242,84,91,.35)}
+  .verdict-label{font-size:13px;font-weight:600}
+  .verdict.good .verdict-label{color:var(--good)}
+  .verdict.bad .verdict-label{color:var(--bad)}
+  .verdict-delta{font-family:var(--mono);font-size:13px}
+  .bars{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .bar-row{display:flex;align-items:center;gap:10px}
+  .bar-name{font-size:11.5px;color:var(--dim);width:78px;flex-shrink:0}
+  .bar-track{flex:1;height:20px;background:var(--panel-2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+  .bar-fill{height:100%;border-radius:4px 0 0 4px;transition:width .15s ease}
+  .bar-fill.text{background:var(--dim)}
+  .bar-fill.image{background:var(--accent)}
+  .bar-num{font-family:var(--mono);font-size:12px;width:64px;text-align:right;flex-shrink:0}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:12.5px}
+  .detail-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+  .detail-item span:first-child{color:var(--dim)}
+  .detail-item span:last-child{font-family:var(--mono)}
+  .note{font-size:11.5px;color:var(--dim);line-height:1.5;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+  .note a{color:var(--accent)}
+  section.measured{margin-top:32px}
+  section.measured h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:0 0 6px}
+  .measured .sub{color:var(--dim);font-size:12px;margin-bottom:14px}
+  .measured .sub a{color:var(--accent)}
+  table{border-collapse:collapse;width:100%;font-size:12px;font-family:var(--mono)}
+  .table-scroll{overflow-x:auto}
+  th,td{border:1px solid var(--border);padding:6px 9px;text-align:right;white-space:nowrap}
+  th{color:var(--dim);font-weight:600;text-transform:none}
   th:first-child,td:first-child{text-align:left}
-  .bar{height:10px;border-radius:5px;background:var(--accent)}
-  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.75rem}
-  .win{background:rgba(76,175,80,.18);color:#4caf50}
-  .lose{background:rgba(255,99,71,.18);color:#ff6347}
-  a{color:var(--accent)}
-  .note{color:var(--muted);font-size:.8rem;margin-top:6px}
-  footer{max-width:1080px;margin:0 auto;padding:20px;color:var(--muted);font-size:.85rem}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px}
+  .win{background:rgba(127,216,88,.15);color:var(--good)}
+  .lose{background:rgba(242,84,91,.15);color:var(--bad)}
+  .chart-row{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:11px;font-family:var(--mono)}
+  .chart-row .lbl{width:150px;color:var(--dim);flex-shrink:0}
+  .chart-row .bar{height:12px;border-radius:3px}
+  footer{max-width:1180px;margin:24px auto 0;color:var(--dim);font-size:12px}
 </style>
 </head>
 <body>
-<header>
-  <h1>Texte vs Image — comparateur de tokens en entrée</h1>
-  <p class="sub">Colle un texte, choisis une densité de rendu, et compare visuellement
-  les deux formes envoyées au modèle. Les chiffres <b>mesurés</b> (appels API réels)
-  proviennent de l'étude ; l'estimation live ci-dessous est indicative.</p>
-</header>
+<div class="wrap">
+  <header>
+    <h1>Texte vs Image — comparateur de tokens en entrée</h1>
+    <div class="subtitle">
+      Colle un texte, ajuste la densité, compare en direct le coût réel en tokens image
+      (formule Claude : patches 28×28px) contre l'estimation du coût texte. Fond blanc /
+      texte noir : pensé pour la lecture par le modèle. Chiffres <b>mesurés</b> (API réelle)
+      plus bas — voir <a href="../study/results.md">l'étude</a>.
+    </div>
+  </header>
 
-<main>
   <div class="grid">
     <div class="card">
-      <label for="src">Texte source</label>
-      <textarea id="src" spellcheck="false"></textarea>
-      <div class="row">
-        <label>Densité
-          <select id="preset">
-            <option value="dense">dense (interligne serré / marge mini)</option>
-            <option value="comfortable">comfortable (interligne large)</option>
-          </select>
-        </label>
-        <label>Police <b id="font-val">12</b>px
-          <br><input type="range" id="font" min="6" max="24" value="12" step="1" style="width:160px">
-        </label>
-        <div class="stat">
-          <span><b id="words">0</b><label>mots</label></span>
-          <span><b id="chars">0</b><label>caractères</label></span>
-        </div>
+      <h2>Texte source</h2>
+      <textarea id="input" spellcheck="false"></textarea>
+      <div class="controls">
+        <div class="ctrl-row"><span class="ctrl-label">Taille police</span>
+          <input type="range" id="fontSize" min="6" max="28" value="12" step="1">
+          <span class="ctrl-val" id="fontSizeVal">12px</span></div>
+        <div class="ctrl-row"><span class="ctrl-label">Interligne</span>
+          <input type="range" id="lineHeight" min="100" max="180" value="115" step="5">
+          <span class="ctrl-val" id="lineHeightVal">1.15</span></div>
+        <div class="ctrl-row"><span class="ctrl-label">Largeur canvas</span>
+          <input type="range" id="canvasWidth" min="360" max="1400" value="640" step="10">
+          <span class="ctrl-val" id="canvasWidthVal">640px</span></div>
+        <div class="ctrl-row"><span class="ctrl-label">Marge</span>
+          <input type="range" id="padding" min="0" max="40" value="8" step="2">
+          <span class="ctrl-val" id="paddingVal">8px</span></div>
+        <div class="ctrl-row"><span class="ctrl-label">Police</span>
+          <select id="fontFamily">
+            <option value="sans">Sans-serif (plus dense)</option>
+            <option value="mono">Monospace (code / précision)</option>
+          </select></div>
       </div>
-      <div class="stat">
-        <span><b id="est-text">0</b><label>tokens texte (≈ car/4)</label></span>
-        <span><b id="est-img">0</b><label>tokens image (⌈w/28⌉×⌈h/28⌉)</label></span>
+      <div class="presets">
+        <button id="presetDense">Preset dense</button>
+        <button id="presetComfort">Preset confortable</button>
       </div>
-      <div id="verdict-wrap" style="margin-top:10px"></div>
-      <button id="dl" disabled style="margin-top:12px;padding:9px 14px;border-radius:8px;
-        border:1px solid var(--line);background:var(--accent);color:#fff;font-weight:600;
-        cursor:pointer">⬇ Télécharger le PNG</button>
-      <p class="note">Texte : estimation ≈ caractères/4 (BPE). Image : formule Claude
-      ⌈largeur/28⌉ × ⌈hauteur/28⌉ patches — <b>indépendante du contenu</b>. Chiffres
-      d'entrée réels mesurés dans <a href="../study/results.md">l'étude</a>.</p>
     </div>
 
-    <div class="card">
-      <label>Rendu image (ce qui serait envoyé)</label>
-      <div class="canvas-wrap"><canvas id="cv" width="640" height="200"></canvas></div>
-      <p class="note" id="dim">–</p>
+    <div>
+      <div class="card">
+        <h2>Rendu image (ce qui serait envoyé)</h2>
+        <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
+        <div class="actions"><button class="btn-primary" id="downloadBtn">Télécharger PNG</button></div>
+      </div>
+
+      <div class="card stats-card">
+        <h2>Comparaison de tokens (live)</h2>
+        <div id="verdict" class="verdict good">
+          <span class="verdict-label" id="verdictLabel">—</span>
+          <span class="verdict-delta" id="verdictDelta">—</span>
+        </div>
+        <div class="bars">
+          <div class="bar-row"><span class="bar-name">Texte brut</span>
+            <div class="bar-track"><div class="bar-fill text" id="textBar" style="width:0%"></div></div>
+            <span class="bar-num" id="textNum">0</span></div>
+          <div class="bar-row"><span class="bar-name">Image</span>
+            <div class="bar-track"><div class="bar-fill image" id="imageBar" style="width:0%"></div></div>
+            <span class="bar-num" id="imageNum">0</span></div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item"><span>Mots</span><span id="wordCount">0</span></div>
+          <div class="detail-item"><span>Caractères</span><span id="charCount">0</span></div>
+          <div class="detail-item"><span>Dimensions image</span><span id="dims">0 × 0 px</span></div>
+          <div class="detail-item"><span>Lignes rendues</span><span id="lineCount">0</span></div>
+        </div>
+        <div class="note">
+          Tokens image = ⌈largeur/28⌉ × ⌈hauteur/28⌉ (formule Claude, patches 28×28px,
+          indépendante du contenu). Tokens texte = estimation ~4 car/token, indicative.
+          Les vrais coûts d'entrée sont <b>mesurés</b> ci-dessous via l'API.
+        </div>
+      </div>
     </div>
   </div>
 
-  <h2>Résultats mesurés (API réelle — <code>usage.input_tokens</code>)</h2>
-  <p class="note">Modèle <code>claude-sonnet-5</code>, corpus FR de 5 textes. Voir
-  <a href="../study/results.md">l'étude complète</a>.</p>
-  <table id="measured"></table>
-  <p class="note">* Texte 5 en <code>comfortable</code> : image réduite pour respecter la
-  limite API 8000 px → lecture dégradée (2/5). Le plus gros gain de coût est aussi
-  le seul échec de fiabilité.</p>
+  <section class="measured">
+    <h2>Résultats mesurés — API réelle (<code>usage.input_tokens</code>)</h2>
+    <div class="sub">Modèle <code>claude-sonnet-5</code>, corpus FR de 5 textes, extraction de 5 champs
+      notée contre une vérité terrain. Aucun chiffre calculé à la main. Détails :
+      <a href="../study/results.md">study/results.md</a>.</div>
+    <div class="table-scroll">
+      <table id="measured"></table>
+    </div>
+    <p class="note">* Texte 5 en confortable : image réduite pour respecter la limite API 8000 px →
+      lecture dégradée (2/5). Le plus gros gain de coût est aussi le seul échec de fiabilité.</p>
 
-  <h2>Coût mesuré par longueur</h2>
-  <div id="barchart" class="card"></div>
-</main>
+    <h2 style="margin-top:26px">Coût mesuré par longueur</h2>
+    <div id="barchart" class="card"></div>
+  </section>
+</div>
 
-<footer>
-  Démo front-end (aucun backend). Extraction de 5 champs structurés comparée à une
-  vérité terrain. Étude & code : voir le dépôt.
-</footer>
+<footer>Démo front-end (aucun backend). Étude & code : dépôt GitHub.</footer>
 
 <script>
-const MEASURED = [
+const $ = id => document.getElementById(id);
+const input=$("input"), canvas=$("canvas"), ctx=canvas.getContext("2d");
+const fontSizeEl=$("fontSize"), lineHeightEl=$("lineHeight"), canvasWidthEl=$("canvasWidth"),
+      paddingEl=$("padding"), fontFamilyEl=$("fontFamily");
+
+const SAMPLE=`Note de synthèse commerciale à l'attention de notre client Boulangerie Lefevre. La facture a été émise le 2024-03-14 pour un montant total de 1 284,50 €, rattachée au contrat CT-2024-0817. Le règlement devra nous parvenir au plus tard le 2024-04-13.`;
+
+const MEASURED=[
   {words:104, text:417,  dense:816,  comfort:1019, score:"5/5"},
   {words:303, text:923,  dense:816,  comfort:1229, score:"5/5"},
   {words:606, text:1688, dense:816,  comfort:2189, score:"5/5"},
   {words:1201,text:3189, dense:1460, comfort:2081, score:"5/5"},
   {words:3010,text:7763, dense:1621, comfort:977,  score:"2/5*"},
 ];
-const PRESETS = {
-  dense:       {font:12, lh:1.15, pad:8,  width:640},
-  comfortable: {font:18, lh:1.8,  pad:40, width:820},
-};
-// Police pilotée par le slider ; le preset fixe interligne/marge/largeur.
-const SAMPLE = `Note de synthèse commerciale à l'attention de notre client Boulangerie Lefevre. La facture a été émise le 2024-03-14 pour un montant total de 1 284,50 €, rattachée au contrat CT-2024-0817. Le règlement devra nous parvenir au plus tard le 2024-04-13.`;
 
-const $ = id => document.getElementById(id);
+function fontStack(k){return k==="mono"
+  ?'"SF Mono","JetBrains Mono",Menlo,Consolas,monospace'
+  :'-apple-system,"Segoe UI",Helvetica,Arial,sans-serif';}
 
-function wrapText(ctx, text, maxW){
-  const words = text.split(/\s+/);
-  const lines = []; let line = "";
-  for(const w of words){
-    const t = line ? line+" "+w : w;
-    if(ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; }
-    else line = t;
-  }
-  if(line) lines.push(line);
+function wrapText(text,maxW,font){
+  ctx.font=font; const lines=[];
+  text.split("\n").forEach(p=>{
+    if(p.trim()===""){lines.push("");return;}
+    let cur=""; p.split(" ").forEach(w=>{
+      const t=cur?cur+" "+w:w;
+      if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=w;}else cur=t;
+    });
+    if(cur)lines.push(cur);
+  });
   return lines;
 }
 
 function render(){
-  const text = $("src").value;
-  const base = PRESETS[$("preset").value];
-  const font = +$("font").value;
-  $("font-val").textContent = font;
-  const p = {font, lh: base.lh, pad: base.pad, width: base.width};
-  const cv = $("cv"), ctx = cv.getContext("2d");
-  const maxW = p.width - 2*p.pad;
-  ctx.font = `${p.font}px sans-serif`;
-  const lines = wrapText(ctx, text || " ", maxW);
-  const lineH = p.font * p.lh;
-  const h = Math.max(120, Math.ceil(2*p.pad + lines.length*lineH));
-  cv.width = p.width; cv.height = h;
-  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,cv.width,h);
-  ctx.fillStyle = "#111"; ctx.textBaseline = "top";
-  ctx.font = `${p.font}px sans-serif`;
-  lines.forEach((l,i)=> ctx.fillText(l, p.pad, p.pad + i*lineH));
-
-  const chars = text.length;
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  $("words").textContent = words;
-  $("chars").textContent = chars;
-  $("dim").textContent = `${p.width} × ${h} px  •  ${(p.width*h/1e6).toFixed(2)} MP`;
-
-  const estText = Math.round(chars/4);
-  // Formule Claude : nombre de patches 28x28, indépendante du contenu.
-  const estImg = Math.ceil(p.width/28) * Math.ceil(h/28);
-  $("est-text").textContent = estText;
-  $("est-img").textContent = estImg;
-
-  const win = estText > 0 && estImg < estText;
-  const red = estText ? Math.round((estText-estImg)/estText*100) : 0;
-  $("verdict-wrap").innerHTML = estText
-    ? `<span class="pill ${win?'win':'lose'}" style="font-size:.95rem;padding:6px 14px">`
-      + `${win?'✅ Gagnant':'❌ Perdant'} · ${red>0?'+':''}${red}% de tokens</span>`
-    : "";
-
-  const dl = $("dl");
-  dl.disabled = !win;
-  dl.style.opacity = win ? "1" : ".45";
-  dl.style.cursor = win ? "pointer" : "not-allowed";
+  const text=input.value;
+  const fs=+fontSizeEl.value, lhm=+lineHeightEl.value/100, width=+canvasWidthEl.value,
+        pad=+paddingEl.value, font=`${fs}px ${fontStack(fontFamilyEl.value)}`;
+  const lines=wrapText(text,width-pad*2,font);
+  const lh=Math.round(fs*lhm), height=Math.max(1,pad*2+lines.length*lh);
+  canvas.width=width; canvas.height=height;
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,width,height);
+  ctx.fillStyle="#111"; ctx.font=font; ctx.textBaseline="top";
+  lines.forEach((l,i)=>ctx.fillText(l,pad,pad+i*lh));
+  updateStats(text,width,height,lines.length);
 }
 
-function download(){
-  const link = document.createElement("a");
-  link.download = `texte-image-${$("preset").value}.png`;
-  link.href = $("cv").toDataURL("image/png");
-  link.click();
+function updateStats(text,width,height,lineCount){
+  const words=text.trim()?text.trim().split(/\s+/).length:0, chars=text.length;
+  const imageTokens=Math.ceil(width/28)*Math.ceil(height/28);
+  const textTokens=Math.max(1,Math.round(chars/4));
+  $("wordCount").textContent=words; $("charCount").textContent=chars;
+  $("dims").textContent=`${width} × ${height} px`; $("lineCount").textContent=lineCount;
+  $("textNum").textContent=textTokens; $("imageNum").textContent=imageTokens;
+  const mx=Math.max(textTokens,imageTokens,1);
+  $("textBar").style.width=(textTokens/mx*100)+"%";
+  $("imageBar").style.width=(imageTokens/mx*100)+"%";
+  const v=$("verdict"), l=$("verdictLabel"), d=$("verdictDelta");
+  if(imageTokens<textTokens){
+    v.className="verdict good"; l.textContent="✅ Gagnant en image";
+    d.textContent=`-${Math.round((1-imageTokens/textTokens)*100)}% de tokens`;
+  }else{
+    v.className="verdict bad"; l.textContent="❌ Perdant en image";
+    d.textContent=`+${Math.round((imageTokens/textTokens-1)*100)}% de tokens`;
+  }
 }
+
+function syncLabels(){
+  $("fontSizeVal").textContent=fontSizeEl.value+"px";
+  $("lineHeightVal").textContent=(+lineHeightEl.value/100).toFixed(2);
+  $("canvasWidthVal").textContent=canvasWidthEl.value+"px";
+  $("paddingVal").textContent=paddingEl.value+"px";
+}
+
+[input,fontSizeEl,lineHeightEl,canvasWidthEl,paddingEl,fontFamilyEl].forEach(el=>
+  el.addEventListener("input",()=>{syncLabels();render();}));
+$("presetDense").addEventListener("click",()=>{
+  fontSizeEl.value=12; lineHeightEl.value=112; paddingEl.value=4; canvasWidthEl.value=640;
+  syncLabels(); render();});
+$("presetComfort").addEventListener("click",()=>{
+  fontSizeEl.value=18; lineHeightEl.value=145; paddingEl.value=24; canvasWidthEl.value=820;
+  syncLabels(); render();});
+$("downloadBtn").addEventListener("click",()=>{
+  canvas.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement("a");
+    a.href=u; a.download="texte-image.png"; a.click(); URL.revokeObjectURL(u);},"image/png");});
 
 function buildTable(){
-  const t = $("measured");
-  let html = "<tr><th>Mots</th><th>Texte</th><th>Img dense</th><th>Img comfort</th>"
-    + "<th>Réduction (dense)</th><th>Extraction</th></tr>";
+  let h="<tr><th>Mots</th><th>Texte</th><th>Img dense</th><th>Img comfort</th>"
+    +"<th>Réduction (dense)</th><th>Extraction</th></tr>";
   for(const r of MEASURED){
-    const red = Math.round((r.text-r.dense)/r.text*100);
-    html += `<tr><td>${r.words}</td><td>${r.text}</td><td>${r.dense}</td>`
-      + `<td>${r.comfort}</td>`
-      + `<td><span class="pill ${red>0?'win':'lose'}">${red>0?'+':''}${red}%</span></td>`
-      + `<td>${r.score}</td></tr>`;
+    const red=Math.round((r.text-r.dense)/r.text*100);
+    h+=`<tr><td>${r.words}</td><td>${r.text}</td><td>${r.dense}</td><td>${r.comfort}</td>`
+      +`<td><span class="pill ${red>0?'win':'lose'}">${red>0?'+':''}${red}%</span></td>`
+      +`<td>${r.score}</td></tr>`;
   }
-  t.innerHTML = html;
+  $("measured").innerHTML=h;
 }
-
 function buildChart(){
-  const c = $("barchart");
-  const max = Math.max(...MEASURED.map(r=>r.text));
-  let html = "";
+  const mx=Math.max(...MEASURED.map(r=>r.text)); let h="";
   for(const r of MEASURED){
-    for(const [k,label,col] of [["text","texte","var(--text)"],["dense","img dense","var(--dense)"],["comfort","img comfort","var(--comfort)"]]){
-      const w = (r[k]/max*100).toFixed(1);
-      html += `<div style="display:flex;align-items:center;gap:8px;margin:2px 0;font-size:.75rem">`
-        + `<span style="width:120px;color:var(--muted)">${r.words} mots · ${label}</span>`
-        + `<span class="bar" style="width:${w}%;background:${col}"></span>`
-        + `<span>${r[k]}</span></div>`;
+    for(const [k,lbl,c] of [["text","texte","var(--good)"],["dense","img dense","var(--accent)"],["comfort","img comfort","var(--bad)"]]){
+      h+=`<div class="chart-row"><span class="lbl">${r.words} mots · ${lbl}</span>`
+        +`<span class="bar" style="width:${(r[k]/mx*100).toFixed(1)}%;background:${c}"></span>`
+        +`<span>${r[k]}</span></div>`;
     }
-    html += `<div style="height:8px"></div>`;
+    h+=`<div style="height:8px"></div>`;
   }
-  c.innerHTML = html;
+  $("barchart").innerHTML=h;
 }
 
-$("src").value = SAMPLE;
-$("src").addEventListener("input", render);
-$("preset").addEventListener("change", () => {
-  $("font").value = PRESETS[$("preset").value].font;  // reset police au défaut du preset
-  render();
-});
-$("font").addEventListener("input", render);
-$("dl").addEventListener("click", download);
-render(); buildTable(); buildChart();
+input.value=SAMPLE;
+syncLabels(); render(); buildTable(); buildChart();
 </script>
+</div>
 </body>
 </html>
